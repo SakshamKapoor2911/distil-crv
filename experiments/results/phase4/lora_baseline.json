@@ -1,10 +1,11 @@
 {
   "model": "LoRA",
-  "parameters": 3407872,
-  "final_train_loss": 0.0988,
-  "final_ce_loss": 0.1353,
-  "final_kl_loss": 0.0831,
-  "peak_vram_gb": 16.35,
-  "training_time_s": 100.95,
-  "timestamp": "2026-06-20 00:44:19"
+  "parameters": 13631488,
+  "final_train_loss": 0.0974,
+  "final_ce_loss": 0.1351,
+  "final_kl_loss": 0.0813,
+  "peak_vram_gb": 16.42,
+  "training_time_s": 101.19,
+  "forward_pass_latency_ms": 70.47,
+  "timestamp": "2026-06-20 02:42:20"
 }

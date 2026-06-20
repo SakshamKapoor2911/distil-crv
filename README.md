@@ -38,10 +38,19 @@ Without needing token-level labels, we implemented **Gradient-Based Saliency** (
 
 ## 🛠️ Phases of Execution
 1. **Phase 1**: Extracted Llama-3.1-8B representation caches.
-2. **Phase 2**: Built an offline 15M parameter verifier on Layer 31 that generalized perfectly to zero-shot MATH.
+2. **Phase 2**: Built an offline 15M parameter verifier on Layer 31 that separates the correctness manifold.
 3. **Phase 3**: Extracted token-level reasoning errors using Gradient-Based Saliency.
-4. **Phase 4**: Confirmed that our approach drastically reduces VRAM/Latency compared to standard LoRA fine-tuning.
+4. **Phase 4**: Confirmed that our approach drastically reduces VRAM/Latency compared to standard parameter-matched LoRA fine-tuning.
+5. **Phase 5**: Demonstrated zero-shot generalisation limitations via a perfectly balanced $N=100$ evaluation suite, preventing statistical illusions.
+
+### Reproducing the Balanced $N=100$ Generalization Test
+To rigorously test cross-domain verification without class-imbalance artifacts, generate the synthetic MATH traces and extract their $H^{31}$ states:
+```bash
+python experiments/scripts/generate_balanced_math.py
+python experiments/scripts/phase1_extract_hidden_states.py --dataset math --num_examples 100 --cache_dir data/math_cache_balanced
+python experiments/scripts/evaluate_generalization.py --model_path experiments/results/phase2/ablation-final-layer.pt --cache_dir data/math_cache_balanced --layer_indices "[31]" --model_type transformer
+```
 
 ## 📈 Live Dashboard
-The repository tracks all experiments dynamically. 
-View the automated GitHub Pages dashboard here: [Distil-CRV Dashboard](https://github.com/SakshamKapoor2911/distil-crv)
+The repository tracks all experiments dynamically, including interactive visualizations of token-level **Gradient-Based Saliency**.
+View the automated GitHub Pages dashboard here: [https://sakshamkapoor2911.github.io/distil-crv](https://sakshamkapoor2911.github.io/distil-crv)

@@ -61,8 +61,8 @@ def main():
     print("Wrapping with LoRAVerifier...")
     verifier = LoRAVerifier(
         base_model=base_model,
-        lora_r=8,
-        lora_alpha=16,
+        lora_r=32,
+        lora_alpha=64,
         target_modules=["q_proj", "v_proj"]
     )
     # Ensure verification heads are also in bfloat16 and on the correct device
@@ -141,6 +141,20 @@ def main():
     elapsed = time.time() - start_time
     peak_vram = torch.cuda.max_memory_allocated() / 1e9
     
+    print("Measuring forward pass latency...")
+    latencies = []
+    verifier.eval()
+    with torch.no_grad():
+        for i in range(10): # 10 samples
+            ex = examples[i]
+            inputs = tokenizer(ex['reasoning_trace'], return_tensors="pt", truncation=True, max_length=2048).to(args.device)
+            start_infer = time.time()
+            _ = verifier(inputs['input_ids'], attention_mask=inputs['attention_mask'])
+            torch.cuda.synchronize()
+            latencies.append(time.time() - start_infer)
+    
+    avg_latency_ms = (sum(latencies) / len(latencies)) * 1000
+    
     # Save results
     results_dir = "experiments/results/phase4"
     os.makedirs(results_dir, exist_ok=True)
@@ -153,6 +167,7 @@ def main():
         "final_kl_loss": round(epoch_kl / len(examples), 4),
         "peak_vram_gb": round(peak_vram, 2),
         "training_time_s": round(elapsed, 2),
+        "forward_pass_latency_ms": round(avg_latency_ms, 2),
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
