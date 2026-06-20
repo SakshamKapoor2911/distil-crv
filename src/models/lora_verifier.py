@@ -49,9 +49,17 @@ class LoRAVerifier(BaseVerifier):
         
         self.n_error_types = n_error_types
     
-    def forward(self, hidden_states, attention_mask=None, token_ids=None):
-        # hidden_states: [batch, seq_len, hidden_dim]
-        # These are already from the base model's forward pass
+    def forward(self, input_ids, attention_mask=None):
+        # Forward pass through the LLM with LoRA
+        outputs = self.base_model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            output_hidden_states=True,
+            return_dict=True
+        )
+        
+        # Extract final hidden state
+        hidden_states = outputs.hidden_states[-1]
         
         # Pool over sequence
         if attention_mask is not None:
