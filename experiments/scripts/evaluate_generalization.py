@@ -7,7 +7,7 @@ from src.models.transformer_verifier import TransformerVerifier
 from src.data.loader import build_dataloader
 from src.training.distiller import DistillationLoss
 
-def evaluate(model_path: str, cache_dir: str, device: str = "cuda:0"):
+def evaluate(model_path: str, cache_dir: str, layer_indices: list, device: str = "cuda:0"):
     print(f"Loading weights from {model_path}...")
     
     # Initialize the model using the same architecture as Phase 2
@@ -26,7 +26,8 @@ def evaluate(model_path: str, cache_dir: str, device: str = "cuda:0"):
         cache_dir=cache_dir,
         batch_size=8,
         shuffle=False,
-        num_workers=0
+        num_workers=0,
+        layer_indices=layer_indices
     )
     
     loss_fn = DistillationLoss()
@@ -40,9 +41,9 @@ def evaluate(model_path: str, cache_dir: str, device: str = "cuda:0"):
     with torch.no_grad():
         for batch in loader:
             # Move to device
-            hidden_states = batch['hidden_states'].to(device)
+            hidden_states = batch['hidden_states'].to(device, dtype=torch.float32)
             attention_mask = batch['attention_mask'].to(device)
-            crv_logits = batch['crv_logits'].to(device)
+            crv_logits = batch['crv_logits'].to(device, dtype=torch.float32)
             error_type_logits = batch['error_type_logits'].to(device)
             labels = batch['labels'].to(device)
             
@@ -50,11 +51,11 @@ def evaluate(model_path: str, cache_dir: str, device: str = "cuda:0"):
             outputs = verifier(hidden_states, attention_mask=attention_mask)
             
             # Compute loss
-            loss_dict = loss_fn(outputs, {
-                'crv_logits': crv_logits,
-                'error_type_logits': error_type_logits,
-                'labels': labels
-            })
+            loss_dict = loss_fn(
+                outputs['verification_logits'],
+                crv_logits,
+                labels
+            )
             
             total_loss += loss_dict['loss'].item()
             total_ce += loss_dict['ce_loss'].item()
@@ -84,6 +85,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate generalization on new datasets")
     parser.add_argument("--model_path", required=True, help="Path to .pt weights file")
     parser.add_argument("--cache_dir", required=True, help="Path to phase1_cache directory for evaluation")
+    parser.add_argument("--layer_indices", type=str, default="[24,25,26,27,28,29,30,31]", help="JSON string of layer indices")
     args = parser.parse_args()
     
-    evaluate(args.model_path, args.cache_dir)
+    import json
+    layer_indices = json.loads(args.layer_indices)
+    evaluate(args.model_path, args.cache_dir, layer_indices)
