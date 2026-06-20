@@ -59,7 +59,7 @@ def build_dashboard():
         </table>
         """
         
-    html = HTML_TEMPLATE.format(phase1_html=phase1_html)
+    html = HTML_TEMPLATE.replace("{phase1_html}", phase1_html)
     
     with open(os.path.join(DASHBOARD_DIR, "index.html"), "w") as f:
         f.write(html)
