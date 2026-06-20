@@ -40,18 +40,22 @@ def generate_html_highlight(tokens, scores):
     else:
         norm_scores = scores
         
-    html = "<div>"
+    html_str = "<div>"
+    import html
     for token, score in zip(tokens, norm_scores):
-        # Clean token
-        t = token.replace("<|begin_of_text|>", "").replace(" ", " ")
+        # Clean token and escape HTML characters to prevent breaking the DOM
+        t = token.replace("<|begin_of_text|>", "")
+        t = html.escape(t)
+        # Replace BPE characters with spaces/newlines
+        t = t.replace("Ġ", " ").replace("Ċ", "<br>").replace(" ", " ")
         if not t: continue
         
         # Calculate color intensity (red)
         # alpha goes from 0 (transparent) to 0.8 (bright red)
         alpha = score.item() * 0.8
-        html += f'<span class="token" style="background-color: rgba(255, 0, 0, {alpha});">{t}</span>'
-    html += "</div>"
-    return html
+        html_str += f'<span class="token" style="background-color: rgba(255, 0, 0, {alpha});">{t}</span>'
+    html_str += "</div>"
+    return html_str
 
 def main():
     parser = argparse.ArgumentParser()
