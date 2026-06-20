@@ -11,13 +11,29 @@ def main():
     except Exception as e:
         print(f"Failed to download GSM8K: {e}")
     
-    print("Downloading Synthetic Math (facebook/crv)...")
+    print("Downloading MATH benchmark...")
     try:
-        crv_data = load_dataset("facebook/crv", "synthetic_math")
-        crv_data.save_to_disk("data/raw/crv_synthetic_math")
-        print("CRV Synthetic Math downloaded successfully.")
+        math_data = load_dataset("hendrycks/competition_math")
+        math_data.save_to_disk("data/raw/math")
+        print("MATH benchmark downloaded successfully.")
     except Exception as e:
-        print(f"Failed to download CRV Synthetic Math (Make sure HF_TOKEN is set if gated): {e}")
+        print(f"Failed to download MATH: {e}")
+
+    print("Downloading SVAMP benchmark...")
+    try:
+        svamp_data = load_dataset("ChilleD/SVAMP")
+        svamp_data.save_to_disk("data/raw/svamp")
+        print("SVAMP benchmark downloaded successfully.")
+    except Exception as e:
+        print(f"Failed to download SVAMP: {e}")
+
+    print("Downloading ASDiv benchmark (Zero-Shot Holdout)...")
+    try:
+        asdiv_data = load_dataset("EleutherAI/asdiv")
+        asdiv_data.save_to_disk("data/raw/asdiv")
+        print("ASDiv benchmark downloaded successfully.")
+    except Exception as e:
+        print(f"Failed to download ASDiv: {e}")
 
 if __name__ == "__main__":
     main()
