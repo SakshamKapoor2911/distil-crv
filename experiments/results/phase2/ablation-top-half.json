@@ -1,0 +1,8 @@
+{
+    "model": "transformer",
+    "parameters": 14972168,
+    "final_ce_loss": 0.1876,
+    "final_kl_loss": 0.1153,
+    "final_train_loss": 0.137,
+    "timestamp": "2026-06-20T00:20:35.888146"
+}
