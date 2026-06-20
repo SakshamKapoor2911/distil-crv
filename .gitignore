@@ -14,7 +14,7 @@ data/
 *.pth
 
 # Experiment outputs
-experiments/results/
+experiments/results/**/*.log
 experiments/logs/
 
 # IDE

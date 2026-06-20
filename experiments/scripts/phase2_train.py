@@ -3,6 +3,9 @@ from omegaconf import DictConfig
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import sys
+import json
+import os
+from datetime import datetime
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.models.factory import build_verifier
@@ -73,6 +76,21 @@ def main(cfg: DictConfig):
             
     print("\n[SUCCESS] Training completed!")
     wandb.finish()
+    
+    # Save final metrics for dashboard
+    os.makedirs("experiments/results/phase2", exist_ok=True)
+    results_file = "experiments/results/phase2/transformer_verifier.json"
+    final_metrics = {
+        "model": cfg.verifier.type,
+        "parameters": verifier.get_param_count(),
+        "final_ce_loss": round(metrics.get('ce_loss', 0.0), 4) if 'metrics' in locals() else 'N/A',
+        "final_kl_loss": round(metrics.get('kl_loss', 0.0), 4) if 'metrics' in locals() else 'N/A',
+        "final_train_loss": round(metrics.get('train_loss', 0.0), 4) if 'metrics' in locals() else 'N/A',
+        "timestamp": datetime.now().isoformat()
+    }
+    with open(results_file, "w") as f:
+        json.dump(final_metrics, f, indent=4)
+    print(f"Results saved to {results_file}")
 
 if __name__ == "__main__":
     main()

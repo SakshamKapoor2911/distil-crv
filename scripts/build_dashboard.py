@@ -32,6 +32,11 @@ HTML_TEMPLATE = """<!doctype html>
     <h2>Phase 1: Baseline VRAM Profiling</h2>
     {phase1_html}
   </div>
+  
+  <div class="card">
+    <h2>Phase 2: Distilled Verifier Training</h2>
+    {phase2_html}
+  </div>
 </div>
 </body>
 </html>
@@ -59,7 +64,27 @@ def build_dashboard():
         </table>
         """
         
-    html = HTML_TEMPLATE.replace("{phase1_html}", phase1_html)
+    # Phase 2
+    phase2_html = "<p>No runs completed yet.</p>"
+    phase2_files = glob.glob(os.path.join(RESULTS_DIR, "phase2", "*.json"))
+    
+    if phase2_files:
+        latest2 = max(phase2_files, key=os.path.getmtime)
+        with open(latest2, 'r') as f:
+            data2 = json.load(f)
+            
+        phase2_html = f"""
+        <table>
+            <tr><th>Model</th><td>{data2.get('model', 'N/A')} Verifier</td></tr>
+            <tr><th>Parameters</th><td class="metric">{data2.get('parameters', 0):,}</td></tr>
+            <tr><th>Final Train Loss</th><td>{data2.get('final_train_loss', 'N/A')}</td></tr>
+            <tr><th>Final CE Loss</th><td>{data2.get('final_ce_loss', 'N/A')}</td></tr>
+            <tr><th>Final KL Loss</th><td>{data2.get('final_kl_loss', 'N/A')}</td></tr>
+            <tr><th>Last Updated</th><td>{data2.get('timestamp', 'N/A')}</td></tr>
+        </table>
+        """
+        
+    html = HTML_TEMPLATE.replace("{phase1_html}", phase1_html).replace("{phase2_html}", phase2_html)
     
     with open(os.path.join(DASHBOARD_DIR, "index.html"), "w") as f:
         f.write(html)

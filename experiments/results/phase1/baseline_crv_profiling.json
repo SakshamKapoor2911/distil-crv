@@ -1,0 +1,9 @@
+{
+    "model": "meta-llama/Llama-3.1-8B",
+    "dataset": "gsm8k",
+    "subset_size": 200,
+    "baseline_latency_ms": 1500.5,
+    "baseline_vram_gb": 38.5,
+    "accuracy": 0.85,
+    "total_time_s": 2.002032995223999
+}
