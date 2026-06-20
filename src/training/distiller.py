@@ -57,9 +57,9 @@ class VerifierTrainer:
     
     def train_step(self, batch):
         """Single training step."""
-        hidden_states = batch['hidden_states'].to(self.device)
+        hidden_states = batch['hidden_states'].to(self.device, dtype=torch.float32)
         attention_mask = batch['attention_mask'].to(self.device)
-        crv_logits = batch['crv_logits'].to(self.device)  # Soft targets
+        crv_logits = batch['crv_logits'].to(self.device, dtype=torch.float32)  # Soft targets
         labels = batch['labels'].to(self.device)
         
         self.optimizer.zero_grad()

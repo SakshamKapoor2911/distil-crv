@@ -2,12 +2,16 @@ import hydra
 from omegaconf import DictConfig
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.models.factory import build_verifier
 from src.models.factory import build_verifier
 from src.training.distiller import DistillationLoss, VerifierTrainer
-# from src.data.loader import build_dataloader # Temporarily mocked
+from src.data.loader import build_dataloader
 import wandb
 
-@hydra.main(version_base=None, config_path="configs/phase2", config_name="transformer_verifier")
+@hydra.main(version_base=None, config_path="../configs/phase2", config_name="transformer_verifier")
 def main(cfg: DictConfig):
     # Initialize logging
     wandb.init(
@@ -17,15 +21,16 @@ def main(cfg: DictConfig):
         tags=list(cfg.logging.get("wandb_tags", [])),
     )
     
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0"
     
-    # Load base LLM (for extracting hidden states)
-    print("Loading base LLM...")
-    base_model = AutoModelForCausalLM.from_pretrained(
-        "meta-llama/Llama-3.1-8B",
-        torch_dtype=torch.float16,
-        device_map="auto",  
-    )
+    base_model = None
+    if cfg.verifier.type == "lora":
+        print("Loading base LLM for LoRA...")
+        base_model = AutoModelForCausalLM.from_pretrained(
+            "meta-llama/Llama-3.1-8B",
+            torch_dtype=torch.float16,
+            device_map="auto",  
+        )
     
     # Build verifier
     print(f"Building {cfg.verifier.type} verifier...")
@@ -47,7 +52,26 @@ def main(cfg: DictConfig):
     # Build trainer
     trainer = VerifierTrainer(verifier, optimizer, loss_fn, device=device)
     
-    print("Implementation done! Exiting before data loop...")
+    print("Loading cached hidden states...")
+    train_loader = build_dataloader(
+        cache_dir="data/phase1_cache",
+        batch_size=cfg.training.batch_size,
+        shuffle=True
+    )
+    
+    print(f"\n[STARTING] Training {cfg.verifier.type} verifier for {cfg.training.epochs} epochs...")
+    
+    for epoch in range(cfg.training.epochs):
+        print(f"\nEpoch {epoch+1}/{cfg.training.epochs}")
+        for step, batch in enumerate(train_loader):
+            metrics = trainer.train_step(batch)
+            
+            if step % 10 == 0:
+                print(f"Step {step} - Loss: {metrics['train_loss']:.4f} (KL: {metrics['kl_loss']:.4f}, CE: {metrics['ce_loss']:.4f})")
+            
+            wandb.log(metrics)
+            
+    print("\n[SUCCESS] Training completed!")
     wandb.finish()
 
 if __name__ == "__main__":

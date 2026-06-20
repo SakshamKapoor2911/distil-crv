@@ -55,27 +55,31 @@ class TransformerVerifier(BaseVerifier):
         self.verifier_dim = verifier_dim
     
     def forward(self, hidden_states, attention_mask=None, token_ids=None):
-        # hidden_states: [batch, seq_len, hidden_dim]
-        
+        # hidden_states: [batch, seq_len, hidden_dim] or [batch, num_layers, seq_len, hidden_dim]
+        if hidden_states.dim() == 4:
+            hidden_states = hidden_states.mean(dim=1)
+            
         # Project to verifier space
         x = self.input_proj(hidden_states)  # [batch, seq_len, verifier_dim]
         
         # Apply transformer
-        x = self.transformer(x, src_key_padding_mask=attention_mask)
+        # PyTorch transformer expects True for tokens to IGNORE (padding)
+        padding_mask = ~attention_mask if attention_mask is not None else None
+        x_pre_pool = self.transformer(x, src_key_padding_mask=padding_mask)
         
         # Pool over sequence dimension (mean of non-padded tokens)
         if attention_mask is not None:
-            mask = ~attention_mask.unsqueeze(-1)  # [batch, seq_len, 1]
-            x = (x * mask).sum(dim=1) / mask.sum(dim=1)
+            mask = attention_mask.unsqueeze(-1)  # [batch, seq_len, 1]
+            x_pool = (x_pre_pool * mask).sum(dim=1) / mask.sum(dim=1)
         else:
-            x = x.mean(dim=1)  # [batch, verifier_dim]
+            x_pool = x_pre_pool.mean(dim=1)  # [batch, verifier_dim]
         
         # Classification outputs
-        verification_logits = self.verification_head(x)  # [batch, 2]
-        error_type_logits = self.error_type_head(x)  # [batch, n_error_types]
+        verification_logits = self.verification_head(x_pool)  # [batch, 2]
+        error_type_logits = self.error_type_head(x_pool)  # [batch, n_error_types]
         
         # Token-level reasoning importance
-        token_importance = self.token_importance_head(hidden_states).squeeze(-1)  # [batch, seq_len]
+        token_importance = self.token_importance_head(x_pre_pool).squeeze(-1)  # [batch, seq_len]
         
         # Calibrated confidence from softmax
         verification_probs = torch.softmax(verification_logits, dim=-1)
