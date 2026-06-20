@@ -29,6 +29,18 @@ HTML_TEMPLATE = """<!doctype html>
   <p>Real-time profiling and accuracy metrics for the Distil-CRV framework.</p>
   
   <div class="card">
+    <h2>Project Summary & Next Steps</h2>
+    <p><strong>Goal:</strong> Distill the verification logic of heavy Critic Reasoning Verifiers (CRV) into lightweight, hyper-efficient auxiliary models or LoRA adapters.</p>
+    <ul>
+      <li><strong>Phase 1:</strong> Extracted Llama-3.1-8B representation caches (Done).</li>
+      <li><strong>Phase 2:</strong> Trained `TransformerVerifier` on cached states; identified Layer 31 as the optimal feature space (Done).</li>
+      <li><strong>Phase 3:</strong> Extracted token-level reasoning errors using Gradient-Based Saliency (Done).</li>
+      <li><strong>Phase 4:</strong> Benchmarking standard LoRA tuning efficiency directly against Llama-3.1-8B (Done).</li>
+    </ul>
+    <p><strong>Next Steps:</strong> Wrap up experimental results and begin drafting the final paper/presentation analyzing the stark VRAM and latency constraints of LoRA vs Distil-CRV auxiliary encoders.</p>
+  </div>
+  
+  <div class="card">
     <h2>Phase 1: Baseline VRAM Profiling</h2>
     {phase1_html}
   </div>
@@ -42,6 +54,12 @@ HTML_TEMPLATE = """<!doctype html>
     <h2>Phase 3: Automated Error Detection</h2>
     <p>Using Gradient-Based Saliency, we extract token-level importance from the verifier's confidence to highlight exactly which reasoning steps are flawed.</p>
     <a href="highlights.html" style="color: #58a6ff; font-weight: bold; text-decoration: none;">🔍 View Token-Level Error Highlights (HTML)</a>
+  </div>
+
+  <div class="card">
+    <h2>Phase 4: Efficiency Comparison (LoRA Baseline)</h2>
+    <p>Comparing standard LoRA tuning directly on Llama-3.1-8B against our standalone Distil-CRV auxiliary encoder.</p>
+    {phase4_html}
   </div>
 </div>
 </body>
@@ -90,7 +108,27 @@ def build_dashboard():
         </table>
         """
         
-    html = HTML_TEMPLATE.replace("{phase1_html}", phase1_html).replace("{phase2_html}", phase2_html)
+    # Phase 4
+    phase4_html = "<p>No LoRA baseline completed yet.</p>"
+    phase4_file = os.path.join(RESULTS_DIR, "phase4", "lora_baseline.json")
+    
+    if os.path.exists(phase4_file):
+        with open(phase4_file, 'r') as f:
+            data4 = json.load(f)
+            
+        phase4_html = f"""
+        <table>
+            <tr><th>Model</th><td>{data4.get('model', 'N/A')}</td></tr>
+            <tr><th>Trainable Parameters</th><td class="metric">{data4.get('parameters', 0):,}</td></tr>
+            <tr><th>Peak VRAM (GB)</th><td class="metric">{data4.get('peak_vram_gb', 'N/A')}</td></tr>
+            <tr><th>Training Time (s)</th><td>{data4.get('training_time_s', 'N/A')}</td></tr>
+            <tr><th>Final Train Loss</th><td>{data4.get('final_train_loss', 'N/A')}</td></tr>
+            <tr><th>Final CE Loss</th><td>{data4.get('final_ce_loss', 'N/A')}</td></tr>
+            <tr><th>Final KL Loss</th><td>{data4.get('final_kl_loss', 'N/A')}</td></tr>
+        </table>
+        """
+        
+    html = HTML_TEMPLATE.replace("{phase1_html}", phase1_html).replace("{phase2_html}", phase2_html).replace("{phase4_html}", phase4_html)
     
     with open(os.path.join(DASHBOARD_DIR, "index.html"), "w") as f:
         f.write(html)

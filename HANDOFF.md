@@ -44,5 +44,12 @@ python scripts/build_dashboard.py
 ```
 Once you push these changes to the `main` branch, the GitHub Action (`.github/workflows/dashboard.yml`) will automatically build and host the dashboard on GitHub Pages!
 
+### 4. Phase 1-3 Completion
+- **Phase 1 (Data/Extraction):** Completed. Extracted and cached hidden states from Llama-3.1-8B.
+- **Phase 2 (Distillation):** Completed. Trained the 15M parameter `TransformerVerifier` on cached hidden states and performed layer ablations. The final layer (Layer 31) holds the majority of the reasoning signal. The verifier achieved 100% zero-shot generalization on the synthetic MATH dataset.
+- **Phase 3 (Explainability):** Completed. Implemented Gradient-Based Saliency in `src/explainability/saliency.py` to highlight tokens responsible for reasoning errors without needing token-level labels.
+- *Check `docs/phase1_and_2_progress.md` and `docs/phase2_results.md` for detailed findings.*
+
 ## Next Steps
-After completing the baseline profiling, update the Task Tracker and we will move onto **Phase 2: Distil-CRV Core Implementation** where we will build the actual LoRA/Transformer auxiliary models.
+We are currently executing **Phase 4: LoRA & Efficiency Comparisons**. 
+We are training a standard LoRA adapter on Llama-3.1-8B (`experiments/scripts/phase4_train_lora.py`) using full forward/backward passes. This will be used to benchmark VRAM and Latency constraints against our highly-efficient `TransformerVerifier`.
