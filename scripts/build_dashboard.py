@@ -37,6 +37,12 @@ HTML_TEMPLATE = """<!doctype html>
     <h2>Phase 2: Distilled Verifier Training</h2>
     {phase2_html}
   </div>
+  
+  <div class="card">
+    <h2>Phase 3: Automated Error Detection</h2>
+    <p>Using Gradient-Based Saliency, we extract token-level importance from the verifier's confidence to highlight exactly which reasoning steps are flawed.</p>
+    <a href="highlights.html" style="color: #58a6ff; font-weight: bold; text-decoration: none;">🔍 View Token-Level Error Highlights (HTML)</a>
+  </div>
 </div>
 </body>
 </html>
