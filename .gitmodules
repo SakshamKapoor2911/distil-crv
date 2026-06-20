@@ -1,0 +1,3 @@
+[submodule "src/baselines/CRV"]
+	path = src/baselines/CRV
+	url = https://github.com/facebookresearch/CRV.git
