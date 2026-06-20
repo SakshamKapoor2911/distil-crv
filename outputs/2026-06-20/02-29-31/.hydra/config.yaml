@@ -1,0 +1,37 @@
+experiment_name: baseline_mlp
+verifier:
+  type: mlp
+  hidden_dim: 4096
+  verifier_dim: 512
+  n_layers: 4
+  n_heads: 8
+  ff_dim: 2048
+  dropout: 0.1
+  n_error_types: 5
+  mlp_hidden_dim: 3660
+training:
+  batch_size: 16
+  epochs: 20
+  learning_rate: 0.0001
+  warmup_steps: 500
+  gradient_clip: 1.0
+  loss:
+    type: distillation
+    temperature: 3.0
+    alpha_soft: 0.7
+    alpha_hard: 0.3
+data:
+  dataset: gsm8k
+  split: train
+  layer_indices:
+  - 31
+  max_seq_len: 2048
+evaluation:
+  val_every_n_steps: 500
+  save_best_checkpoint: true
+logging:
+  wandb_project: distil-crv
+  wandb_tags:
+  - phase2
+  - transformer
+  - primary

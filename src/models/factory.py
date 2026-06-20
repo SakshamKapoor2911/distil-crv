@@ -25,6 +25,21 @@ def build_verifier(config: dict, base_model=None):
             target_modules=config.get("target_modules", ["q_proj", "v_proj"]),
             n_error_types=config.get("n_error_types", 5),
         )
+        
+    elif verifier_type == "linear":
+        from src.models.baseline_verifiers import LinearVerifier
+        return LinearVerifier(
+            hidden_dim=config.get("hidden_dim", 4096),
+            n_error_types=config.get("n_error_types", 5),
+        )
+        
+    elif verifier_type == "mlp":
+        from src.models.baseline_verifiers import MLPVerifier
+        return MLPVerifier(
+            hidden_dim=config.get("hidden_dim", 4096),
+            mlp_hidden_dim=config.get("mlp_hidden_dim", 3660),
+            n_error_types=config.get("n_error_types", 5),
+        )
     
     else:
         raise ValueError(f"Unknown verifier type: {verifier_type}")

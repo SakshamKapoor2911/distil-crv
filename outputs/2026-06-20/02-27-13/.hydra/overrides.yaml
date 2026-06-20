@@ -1,0 +1,3 @@
+- verifier.type=linear
+- experiment_name=baseline_linear
+- data.layer_indices=[31]

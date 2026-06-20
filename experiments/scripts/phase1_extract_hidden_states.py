@@ -57,7 +57,7 @@ def load_math_subset(
     Load synthetic MATH dataset locally.
     """
     import json
-    data_path = "data/raw/synthetic_math/data.json"
+    data_path = "data/raw/synthetic_math/balanced_100.json"
     
     with open(data_path, "r") as f:
         dataset = json.load(f)
@@ -66,10 +66,11 @@ def load_math_subset(
     for i in range(min(num_examples, len(dataset))):
         example = dataset[i]
         examples.append({
-            'id': f"math_{split}_{i}",
+            'id': example.get('id', f"math_{split}_{i}"),
             'question': example['problem'],
             'answer': example['solution'],
             'reasoning_trace': f"{example['problem']}\n{example['solution']}",
+            'label': example.get('label', 1)
         })
     
     return examples
@@ -112,7 +113,7 @@ def extract_from_examples(
             error_type_logits = crv_output['error_type_logits'][0]
             
             # Determine label
-            label = 1
+            label = example.get('label', 1)
             
             # Save to cache
             cache.save_example(

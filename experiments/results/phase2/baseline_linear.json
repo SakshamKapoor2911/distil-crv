@@ -1,0 +1,8 @@
+{
+    "model": "linear",
+    "parameters": 28679,
+    "final_ce_loss": 0.1211,
+    "final_kl_loss": 0.0493,
+    "final_train_loss": 0.0708,
+    "timestamp": "2026-06-20T02:29:04.736383"
+}

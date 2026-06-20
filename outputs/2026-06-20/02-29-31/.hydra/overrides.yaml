@@ -1,0 +1,4 @@
+- verifier.type=mlp
+- experiment_name=baseline_mlp
+- +verifier.mlp_hidden_dim=3660
+- data.layer_indices=[31]

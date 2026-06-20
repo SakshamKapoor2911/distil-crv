@@ -1,0 +1,8 @@
+{
+    "model": "mlp",
+    "parameters": 30015667,
+    "final_ce_loss": 0.084,
+    "final_kl_loss": 0.0246,
+    "final_train_loss": 0.0424,
+    "timestamp": "2026-06-20T02:30:47.590672"
+}

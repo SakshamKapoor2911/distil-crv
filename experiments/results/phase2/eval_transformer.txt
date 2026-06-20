@@ -1,0 +1,16 @@
+Loading weights from experiments/results/phase2/ablation-final-layer.pt...
+Loading evaluation dataset from data/math_cache...
+Running inference...
+
+=== Generalization Evaluation Results ===
+Model: experiments/results/phase2/ablation-final-layer.pt
+Dataset: data/math_cache (5 examples)
+Class Distribution: Tested on 5 correct traces and 0 incorrect traces
+Average Loss: 0.0905
+  Cross-Entropy: 0.1265
+  KL-Divergence: 0.0751
+Verification Accuracy: 100.00%
+AUROC: nan
+Macro F1: 1.0000
+=========================================
+

@@ -1,0 +1,16 @@
+Loading weights from experiments/results/phase2/baseline_linear.pt...
+Loading evaluation dataset from data/math_cache_balanced...
+Running inference...
+
+=== Generalization Evaluation Results ===
+Model: experiments/results/phase2/baseline_linear.pt
+Dataset: data/math_cache_balanced (100 examples)
+Class Distribution: Tested on 50 correct traces and 50 incorrect traces
+Average Loss: 0.3284
+  Cross-Entropy: 0.9822
+  KL-Divergence: 0.0481
+Verification Accuracy: 50.00%
+AUROC: 0.4504
+Macro F1: 0.3333
+=========================================
+
