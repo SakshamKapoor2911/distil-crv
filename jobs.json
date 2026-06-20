@@ -1,0 +1,134 @@
+{
+  "total_count": 2,
+  "jobs": [
+    {
+      "id": 82453173090,
+      "run_id": 27859578290,
+      "workflow_name": "Deploy Dashboard to GitHub Pages",
+      "head_branch": "master",
+      "run_url": "https://api.github.com/repos/SakshamKapoor2911/distil-crv/actions/runs/27859578290",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS_3JP88AAAATMpeTYg",
+      "head_sha": "22c50901841bb8b1b6dcb3e586a0edd2567e9678",
+      "url": "https://api.github.com/repos/SakshamKapoor2911/distil-crv/actions/jobs/82453173090",
+      "html_url": "https://github.com/SakshamKapoor2911/distil-crv/actions/runs/27859578290/job/82453173090",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-06-20T04:01:19Z",
+      "started_at": "2026-06-20T04:01:21Z",
+      "completed_at": "2026-06-20T04:01:28Z",
+      "name": "build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-06-20T04:01:22Z",
+          "completed_at": "2026-06-20T04:01:23Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-06-20T04:01:23Z",
+          "completed_at": "2026-06-20T04:01:24Z"
+        },
+        {
+          "name": "Setup Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-06-20T04:01:24Z",
+          "completed_at": "2026-06-20T04:01:24Z"
+        },
+        {
+          "name": "Build Dashboard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-06-20T04:01:24Z",
+          "completed_at": "2026-06-20T04:01:24Z"
+        },
+        {
+          "name": "Commit if changed",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 5,
+          "started_at": "2026-06-20T04:01:24Z",
+          "completed_at": "2026-06-20T04:01:25Z"
+        },
+        {
+          "name": "Upload artifact",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-06-20T04:01:25Z",
+          "completed_at": "2026-06-20T04:01:25Z"
+        },
+        {
+          "name": "Post Setup Python",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 11,
+          "started_at": "2026-06-20T04:01:25Z",
+          "completed_at": "2026-06-20T04:01:25Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-06-20T04:01:25Z",
+          "completed_at": "2026-06-20T04:01:25Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-06-20T04:01:25Z",
+          "completed_at": "2026-06-20T04:01:25Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SakshamKapoor2911/distil-crv/check-runs/82453173090",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000275,
+      "runner_name": "GitHub Actions 1000000275",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 82453183536,
+      "run_id": 27859578290,
+      "workflow_name": "Deploy Dashboard to GitHub Pages",
+      "head_branch": "master",
+      "run_url": "https://api.github.com/repos/SakshamKapoor2911/distil-crv/actions/runs/27859578290",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS_3JP88AAAATMpe8MA",
+      "head_sha": "22c50901841bb8b1b6dcb3e586a0edd2567e9678",
+      "url": "https://api.github.com/repos/SakshamKapoor2911/distil-crv/actions/jobs/82453183536",
+      "html_url": "https://github.com/SakshamKapoor2911/distil-crv/actions/runs/27859578290/job/82453183536",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-06-20T04:01:29Z",
+      "started_at": "2026-06-20T04:01:29Z",
+      "completed_at": "2026-06-20T04:01:28Z",
+      "name": "deploy",
+      "steps": [
+
+      ],
+      "check_run_url": "https://api.github.com/repos/SakshamKapoor2911/distil-crv/check-runs/82453183536",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    }
+  ]
+}
