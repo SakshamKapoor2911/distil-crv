@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Data (large files)
+data/
+*.pkl
+*.jsonl
+*.pt
+*.pth
+
+# Experiment outputs
+experiments/results/
+experiments/logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+.env
+
+# ML frameworks
+wandb/
+lightning_logs/
+
+# Virtual env
+venv/
+env/
