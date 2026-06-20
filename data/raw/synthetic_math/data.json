@@ -1,0 +1,7 @@
+[
+    {"problem": "If John has 5 apples and eats 2, how many does he have?", "solution": "John starts with 5. He eats 2. 5 - 2 = 3. #### 3"},
+    {"problem": "A car travels at 60 mph for 2 hours. How far does it go?", "solution": "Distance is speed multiplied by time. 60 * 2 = 120. #### 120"},
+    {"problem": "What is 15% of 200?", "solution": "15% is 0.15. 0.15 * 200 = 30. #### 30"},
+    {"problem": "Solve for x: 2x + 5 = 15.", "solution": "Subtract 5 from both sides: 2x = 10. Divide by 2: x = 5. #### 5"},
+    {"problem": "A baker makes 120 cookies. He sells 3/4 of them. How many are left?", "solution": "He sells 120 * (3/4) = 90 cookies. Left over is 120 - 90 = 30. #### 30"}
+]

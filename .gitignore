@@ -7,7 +7,7 @@ dist/
 build/
 
 # Data (large files)
-data/
+/data/
 *.pkl
 *.jsonl
 *.pt

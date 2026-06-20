@@ -59,7 +59,8 @@ def main(cfg: DictConfig):
     train_loader = build_dataloader(
         cache_dir="data/phase1_cache",
         batch_size=cfg.training.batch_size,
-        shuffle=True
+        shuffle=True,
+        layer_indices=list(cfg.data.get("layer_indices", list(range(24, 32))))
     )
     
     print(f"\n[STARTING] Training {cfg.verifier.type} verifier for {cfg.training.epochs} epochs...")
@@ -79,7 +80,7 @@ def main(cfg: DictConfig):
     
     # Save final metrics for dashboard
     os.makedirs("experiments/results/phase2", exist_ok=True)
-    results_file = "experiments/results/phase2/transformer_verifier.json"
+    results_file = f"experiments/results/phase2/{cfg.experiment_name}.json"
     final_metrics = {
         "model": cfg.verifier.type,
         "parameters": verifier.get_param_count(),
@@ -91,6 +92,10 @@ def main(cfg: DictConfig):
     with open(results_file, "w") as f:
         json.dump(final_metrics, f, indent=4)
     print(f"Results saved to {results_file}")
+    
+    weights_file = f"experiments/results/phase2/{cfg.experiment_name}.pt"
+    torch.save(verifier.state_dict(), weights_file)
+    print(f"Model weights saved to {weights_file}")
 
 if __name__ == "__main__":
     main()

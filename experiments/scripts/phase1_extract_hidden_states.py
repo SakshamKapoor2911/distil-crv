@@ -49,6 +49,31 @@ def load_gsm8k_subset(
     return examples
 
 
+def load_math_subset(
+    num_examples: int = 500,
+    split: str = "train",
+) -> List[dict]:
+    """
+    Load synthetic MATH dataset locally.
+    """
+    import json
+    data_path = "data/raw/synthetic_math/data.json"
+    
+    with open(data_path, "r") as f:
+        dataset = json.load(f)
+    
+    examples = []
+    for i in range(min(num_examples, len(dataset))):
+        example = dataset[i]
+        examples.append({
+            'id': f"math_{split}_{i}",
+            'question': example['problem'],
+            'answer': example['solution'],
+            'reasoning_trace': f"{example['problem']}\n{example['solution']}",
+        })
+    
+    return examples
+
 def extract_from_examples(
     examples: List[dict],
     extractor,
@@ -155,12 +180,18 @@ def main(args):
     
     cache = HiddenStateCache(cache_dir=args.cache_dir)
     
-    # Load GSM8K subset
-    print(f"Loading GSM8K subset ({args.num_examples} examples)...")
-    examples = load_gsm8k_subset(
-        num_examples=args.num_examples,
-        split=args.split,
-    )
+    # Load dataset
+    print(f"Loading {args.dataset.upper()} subset ({args.num_examples} examples)...")
+    if args.dataset == "gsm8k":
+        examples = load_gsm8k_subset(
+            num_examples=args.num_examples,
+            split=args.split,
+        )
+    elif args.dataset == "math":
+        examples = load_math_subset(
+            num_examples=args.num_examples,
+            split=args.split,
+        )
     
     # Optional: Dry-run on 5 examples first
     if args.dry_run:
@@ -206,10 +237,16 @@ if __name__ == "__main__":
         description="Extract hidden states from Llama-3.1-8B on GSM8K subset"
     )
     parser.add_argument(
+        "--dataset",
+        default="gsm8k",
+        choices=["gsm8k", "math"],
+        help="Which dataset to extract from",
+    )
+    parser.add_argument(
         "--num_examples",
         type=int,
         default=500,
-        help="Number of GSM8K examples to extract",
+        help="Number of examples to extract",
     )
     parser.add_argument(
         "--split",
