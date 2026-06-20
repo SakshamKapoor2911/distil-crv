@@ -1,0 +1,247 @@
+"""
+Phase 1: Extract hidden states and CRV soft targets from Llama-3.1-8B.
+Runs forward passes on GSM8K subset, caches results to disk.
+"""
+
+import torch
+import json
+import argparse
+from pathlib import Path
+from tqdm import tqdm
+from typing import List
+from datasets import load_from_disk
+
+# Add src to path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from src.baselines.crv_adapter import load_llama_extractor, mock_crv_logits
+from src.data.cache import HiddenStateCache
+
+
+def load_gsm8k_subset(
+    num_examples: int = 500,
+    split: str = "train",
+) -> List[dict]:
+    """
+    Load GSM8K subset locally (assumes downloaded to data/raw/gsm8k).
+    """
+    data_path = "data/raw/gsm8k"
+    
+    if not Path(data_path).exists():
+        raise FileNotFoundError(
+            f"GSM8K data not found at {data_path}. "
+            f"Download from HuggingFace first."
+        )
+    
+    dataset = load_from_disk(data_path)[split]
+    examples = []
+    
+    for i in range(min(num_examples, len(dataset))):
+        example = dataset[i]
+        examples.append({
+            'id': f"gsm8k_{split}_{i}",
+            'question': example['question'],
+            'answer': example['answer'],
+            'reasoning_trace': f"{example['question']}\n{example['answer']}",
+        })
+    
+    return examples
+
+
+def extract_from_examples(
+    examples: List[dict],
+    extractor,
+    cache,
+    layer_indices: List[int] = None,
+    max_examples: int = None,
+) -> None:
+    """
+    Extract hidden states and logits for a list of examples.
+    """
+    if layer_indices is None:
+        layer_indices = list(range(24, 32))
+    
+    if max_examples:
+        examples = examples[:max_examples]
+    
+    print(f"Extracting hidden states for {len(examples)} examples...")
+    print(f"Layers: {layer_indices}")
+    
+    failed_examples = []
+    
+    for example in tqdm(examples, desc="Extraction progress"):
+        try:
+            example_id = example['id']
+            reasoning_trace = example['reasoning_trace']
+            
+            # Extract hidden states
+            extraction = extractor.extract_hidden_states(
+                text=reasoning_trace,
+                layer_indices=layer_indices,
+            )
+            
+            # Mock CRV logits for now
+            crv_output = mock_crv_logits(num_examples=1)
+            verification_logits = crv_output['verification_logits'][0]
+            error_type_logits = crv_output['error_type_logits'][0]
+            
+            # Determine label
+            label = 1
+            
+            # Save to cache
+            cache.save_example(
+                example_id=example_id,
+                hidden_states_dict=extraction['hidden_states_dict'],
+                verification_logits=verification_logits,
+                error_type_logits=error_type_logits,
+                label=label,
+                seq_len=extraction['seq_len'],
+            )
+            
+        except Exception as e:
+            print(f"[ERROR] Failed to process {example['id']}: {e}")
+            failed_examples.append(example['id'])
+            continue
+    
+    # Summary
+    print(f"\n=== Extraction Summary ===")
+    print(f"Successfully extracted: {len(examples) - len(failed_examples)}/{len(examples)}")
+    print(f"Cache size: {cache.get_cache_size_gb():.2f} GB")
+    print(f"Cached examples: {len(cache.list_cached_examples())}")
+    
+    if failed_examples:
+        print(f"\n[WARNING] {len(failed_examples)} examples failed:")
+        for ex_id in failed_examples[:10]:  # Show first 10
+            print(f"  - {ex_id}")
+
+
+def profile_vram(extractor, num_examples: int = 5) -> dict:
+    """
+    Quick VRAM profiling on N examples.
+    """
+    import time
+    
+    torch.cuda.reset_peak_memory_stats()
+    torch.cuda.synchronize()
+    
+    examples = load_gsm8k_subset(num_examples=num_examples)
+    start_time = time.time()
+    
+    for example in examples:
+        with torch.no_grad():
+            _ = extractor.extract_hidden_states(example['reasoning_trace'])
+    
+    torch.cuda.synchronize()
+    elapsed = time.time() - start_time
+    peak_vram = torch.cuda.max_memory_allocated() / 1e9
+    
+    avg_seq_len = sum(len(ex['reasoning_trace'].split()) for ex in examples) / len(examples)
+    examples_per_hour = (len(examples) / elapsed) * 3600
+    
+    return {
+        'peak_vram_gb': peak_vram,
+        'avg_seq_len': avg_seq_len,
+        'examples_per_hour': examples_per_hour,
+    }
+
+
+def main(args):
+    """Main extraction pipeline."""
+    
+    # Initialize components
+    print("Loading Llama-3.1-8B extractor...")
+    extractor = load_llama_extractor(device=args.device)
+    
+    cache = HiddenStateCache(cache_dir=args.cache_dir)
+    
+    # Load GSM8K subset
+    print(f"Loading GSM8K subset ({args.num_examples} examples)...")
+    examples = load_gsm8k_subset(
+        num_examples=args.num_examples,
+        split=args.split,
+    )
+    
+    # Optional: Dry-run on 5 examples first
+    if args.dry_run:
+        print("\n[DRY RUN] Extracting 5 examples to verify pipeline...")
+        extract_from_examples(
+            examples=examples,
+            extractor=extractor,
+            cache=cache,
+            max_examples=5,
+        )
+        print("[DRY RUN] Success! Ready for full extraction.\n")
+        return
+    
+    # Optional: VRAM profiling
+    if args.profile:
+        print("\n[PROFILING] Running VRAM profile on 5 examples...")
+        profile = profile_vram(extractor, num_examples=5)
+        print(f"Peak VRAM: {profile['peak_vram_gb']:.2f} GB")
+        print(f"Avg seq len: {profile['avg_seq_len']:.0f} tokens")
+        print(f"Throughput: {profile['examples_per_hour']:.0f} ex/hour")
+        print(f"Estimated time for {args.num_examples} examples: "
+              f"{args.num_examples / profile['examples_per_hour']:.1f} hours\n")
+        if not args.confirm:
+            return
+    
+    # Full extraction
+    print(f"\n[STARTING EXTRACTION] {args.num_examples} examples")
+    print(f"Cache directory: {args.cache_dir}")
+    print(f"Device: {args.device}")
+    print()
+    
+    extract_from_examples(
+        examples=examples,
+        extractor=extractor,
+        cache=cache,
+    )
+    
+    print("\n[SUCCESS] Extraction complete!")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Extract hidden states from Llama-3.1-8B on GSM8K subset"
+    )
+    parser.add_argument(
+        "--num_examples",
+        type=int,
+        default=500,
+        help="Number of GSM8K examples to extract",
+    )
+    parser.add_argument(
+        "--split",
+        default="train",
+        choices=["train", "test"],
+        help="Which GSM8K split",
+    )
+    parser.add_argument(
+        "--cache_dir",
+        default="data/phase1_cache",
+        help="Directory to cache hidden states",
+    )
+    parser.add_argument(
+        "--device",
+        default="cuda:0",  # Changed to cuda:0 so it runs fine on single-GPU
+        help="Device to run LLM on",
+    )
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="Extract only 5 examples to verify pipeline",
+    )
+    parser.add_argument(
+        "--profile",
+        action="store_true",
+        help="Profile VRAM and throughput before full extraction",
+    )
+    parser.add_argument(
+        "--confirm",
+        action="store_true",
+        help="Proceed with full extraction after profiling",
+    )
+    
+    args = parser.parse_args()
+    main(args)
