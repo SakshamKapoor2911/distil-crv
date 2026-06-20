@@ -1,35 +1,50 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>Distil-CRV Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme: 'dark'});</script>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
-  .container { max-width: 900px; margin: 0 auto; }
-  h1 { color: #58a6ff; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #30363d; }
-  th { color: #8b949e; }
-  .metric { font-size: 24px; font-weight: bold; color: #3fb950; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d1117; color: #c9d1d9; padding: 40px; margin: 0; }
+  h1 { color: #58a6ff; text-align: center; font-size: 2.5em; margin-bottom: 10px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  h2 { color: #f0f6fc; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #30363d; padding: 12px; text-align: left; }
+  th { background-color: #21262d; color: #c9d1d9; }
+  tr:nth-child(even) { background-color: #1a1e24; }
+  .metric { font-family: 'Courier New', Courier, monospace; color: #79c0ff; font-weight: bold; }
+  p { line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Distil-CRV: Dashboard</h1>
-  <p>Real-time profiling and accuracy metrics for the Distil-CRV framework.</p>
+  <h1>Distil-CRV Dashboard</h1>
+  <p style="text-align: center; color: #8b949e; font-size: 1.1em;">Real-time profiling and accuracy metrics for the Distil-CRV framework.</p>
   
   <div class="card">
-    <h2>Project Summary & Next Steps</h2>
+    <h2>Architecture</h2>
+    <div class="mermaid" style="text-align: center;">
+      graph TD
+      A[Input Text] -->|Tokenize| B(Llama-3.1-8B Base Model)
+      B -->|Forward Pass| C{{Hidden States}}
+      C -->|Extract Final Layer| D[15M TransformerVerifier]
+      D -->|Distillation| E[Verification Logits]
+      D -->|Saliency| F[Token-Level Highlights]
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Project Summary & Deep Insights</h2>
     <p><strong>Goal:</strong> Distill the verification logic of heavy Critic Reasoning Verifiers (CRV) into lightweight, hyper-efficient auxiliary models or LoRA adapters.</p>
     <ul>
-      <li><strong>Phase 1:</strong> Extracted Llama-3.1-8B representation caches (Done).</li>
-      <li><strong>Phase 2:</strong> Trained `TransformerVerifier` on cached states; identified Layer 31 as the optimal feature space (Done).</li>
-      <li><strong>Phase 3:</strong> Extracted token-level reasoning errors using Gradient-Based Saliency (Done).</li>
-      <li><strong>Phase 4:</strong> Benchmarking standard LoRA tuning efficiency directly against Llama-3.1-8B (Done).</li>
+      <li><strong>Insight 1:</strong> Running a full LLM for reasoning verification introduces immense VRAM and Latency bottlenecks. Distil-CRV intercepts the hidden states directly from the LLM cache, bypassing the need for duplicate forward passes.</li>
+      <li><strong>Insight 2:</strong> Layer ablation studies demonstrate that the final layer (Layer 31) holds the highest density of mathematical reasoning signal.</li>
+      <li><strong>Insight 3:</strong> Gradient-Based Saliency mathematically traces logic errors directly to individual tokens, producing explainability without token-level supervision.</li>
     </ul>
-    <p><strong>Next Steps:</strong> Wrap up experimental results and begin drafting the final paper/presentation analyzing the stark VRAM and latency constraints of LoRA vs Distil-CRV auxiliary encoders.</p>
+    <p><strong>Next Steps:</strong> Drafting the ICLR formatted research paper containing the empirical results below.</p>
   </div>
   
   <div class="card">
