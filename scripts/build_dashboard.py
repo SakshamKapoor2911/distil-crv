@@ -101,6 +101,10 @@ def build_dashboard():
             <tr><th>Accuracy</th><td>{data.get('accuracy', 0)*100:.1f}%</td></tr>
             <tr><th>Subset Size</th><td>{data.get('subset_size', 'N/A')}</td></tr>
         </table>
+        <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #58a6ff;">View Raw JSON Data</summary>
+            <pre style="background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">{json.dumps(data, indent=2)}</pre>
+        </details>
         """
         
     # Phase 2
@@ -109,10 +113,12 @@ def build_dashboard():
     
     if phase2_files:
         rows = []
+        all_data2 = {}
         for f in sorted(phase2_files):
             with open(f, 'r') as file:
                 data2 = json.load(file)
                 name = os.path.basename(f).replace(".json", "")
+                all_data2[name] = data2
                 rows.append(f"<tr><td>{name}</td><td>{data2.get('final_train_loss', 'N/A')}</td><td>{data2.get('final_ce_loss', 'N/A')}</td><td>{data2.get('final_kl_loss', 'N/A')}</td></tr>")
                 
         phase2_html = f"""
@@ -121,6 +127,10 @@ def build_dashboard():
             <tr><th>Ablation Run</th><th>Train Loss</th><th>CE Loss</th><th>KL Loss</th></tr>
             {''.join(rows)}
         </table>
+        <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #58a6ff;">View Raw JSON Data</summary>
+            <pre style="background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">{json.dumps(all_data2, indent=2)}</pre>
+        </details>
         """
         
     # Phase 4
@@ -141,6 +151,10 @@ def build_dashboard():
             <tr><th>Final CE Loss</th><td>{data4.get('final_ce_loss', 'N/A')}</td></tr>
             <tr><th>Final KL Loss</th><td>{data4.get('final_kl_loss', 'N/A')}</td></tr>
         </table>
+        <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #58a6ff;">View Raw JSON Data</summary>
+            <pre style="background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">{json.dumps(data4, indent=2)}</pre>
+        </details>
         """
         
     html = HTML_TEMPLATE.replace("{phase1_html}", phase1_html).replace("{phase2_html}", phase2_html).replace("{phase4_html}", phase4_html)

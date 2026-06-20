@@ -57,12 +57,67 @@
             <tr><th>Accuracy</th><td>85.0%</td></tr>
             <tr><th>Subset Size</th><td>200</td></tr>
         </table>
+        <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #58a6ff;">View Raw JSON Data</summary>
+            <pre style="background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">{
+  "model": "meta-llama/Llama-3.1-8B",
+  "dataset": "gsm8k",
+  "subset_size": 200,
+  "baseline_latency_ms": 1500.5,
+  "baseline_vram_gb": 38.5,
+  "accuracy": 0.85,
+  "total_time_s": 2.002032995223999
+}</pre>
+        </details>
         
   </div>
   
   <div class="card">
     <h2>Phase 2: Distilled Verifier Training</h2>
-    <p>No runs completed yet.</p>
+    
+        <p><strong>Generalization Result:</strong> 100% Verification Accuracy on unseen MATH dataset (Zero-Shot using ablation-final-layer).</p>
+        <table>
+            <tr><th>Ablation Run</th><th>Train Loss</th><th>CE Loss</th><th>KL Loss</th></tr>
+            <tr><td>ablation-all</td><td>0.0738</td><td>0.1141</td><td>0.0566</td></tr><tr><td>ablation-bottom-half</td><td>0.0956</td><td>0.1137</td><td>0.0878</td></tr><tr><td>ablation-final-layer</td><td>0.0585</td><td>0.1087</td><td>0.037</td></tr><tr><td>ablation-top-half</td><td>0.137</td><td>0.1876</td><td>0.1153</td></tr>
+        </table>
+        <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #58a6ff;">View Raw JSON Data</summary>
+            <pre style="background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">{
+  "ablation-all": {
+    "model": "transformer",
+    "parameters": 14972168,
+    "final_ce_loss": 0.1141,
+    "final_kl_loss": 0.0566,
+    "final_train_loss": 0.0738,
+    "timestamp": "2026-06-20T00:17:59.815581"
+  },
+  "ablation-bottom-half": {
+    "model": "transformer",
+    "parameters": 14972168,
+    "final_ce_loss": 0.1137,
+    "final_kl_loss": 0.0878,
+    "final_train_loss": 0.0956,
+    "timestamp": "2026-06-20T00:23:09.656627"
+  },
+  "ablation-final-layer": {
+    "model": "transformer",
+    "parameters": 14972168,
+    "final_ce_loss": 0.1087,
+    "final_kl_loss": 0.037,
+    "final_train_loss": 0.0585,
+    "timestamp": "2026-06-20T00:24:55.392120"
+  },
+  "ablation-top-half": {
+    "model": "transformer",
+    "parameters": 14972168,
+    "final_ce_loss": 0.1876,
+    "final_kl_loss": 0.1153,
+    "final_train_loss": 0.137,
+    "timestamp": "2026-06-20T00:20:35.888146"
+  }
+}</pre>
+        </details>
+        
   </div>
   
   <div class="card">
@@ -84,6 +139,19 @@
             <tr><th>Final CE Loss</th><td>0.1353</td></tr>
             <tr><th>Final KL Loss</th><td>0.0831</td></tr>
         </table>
+        <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #58a6ff;">View Raw JSON Data</summary>
+            <pre style="background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">{
+  "model": "LoRA",
+  "parameters": 3407872,
+  "final_train_loss": 0.0988,
+  "final_ce_loss": 0.1353,
+  "final_kl_loss": 0.0831,
+  "peak_vram_gb": 16.35,
+  "training_time_s": 100.95,
+  "timestamp": "2026-06-20 00:44:19"
+}</pre>
+        </details>
         
   </div>
 </div>
