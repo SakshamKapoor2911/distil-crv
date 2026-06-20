@@ -7,14 +7,14 @@ dist/
 build/
 
 # Data (large files)
-data/
+/data/
 *.pkl
 *.jsonl
 *.pt
 *.pth
 
 # Experiment outputs
-experiments/results/
+experiments/results/**/*.log
 experiments/logs/
 
 # IDE
