@@ -5,9 +5,6 @@ on:
     branches:
       - main
       - master
-    paths:
-      - 'experiments/results/**/*.json'
-      - 'scripts/build_dashboard.py'
   workflow_dispatch:
 
 permissions:
